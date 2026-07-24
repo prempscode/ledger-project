@@ -1,5 +1,6 @@
 const userModel = require("../models/user.model");
 const jwt = require("jsonwebtoken");
+const emailService = require("../services/email.service");
 
 // user register : /api/auth/register
 
@@ -20,7 +21,7 @@ async function registerController(req, res) {
     name,
   });
 
-  const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_TOKEN, {expiresIn: "3d",});
+  const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_TOKEN, { expiresIn: "3d", });
 
   res.cookie("token", token);
 
@@ -32,6 +33,7 @@ async function registerController(req, res) {
     },
     token,
   });
+  await emailService.sendRegistrationEmail(user.email, user.name);
 }
 
 // user login : /api/auth/login
@@ -59,7 +61,7 @@ async function loginController(req, res) {
   const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_TOKEN, {
     expiresIn: "3d",
   });
-    
+
   res.cookie("token", token);
 
   res.status(200).json({
@@ -70,6 +72,7 @@ async function loginController(req, res) {
     },
     token,
   });
+  await emailService.sendLoginEmail(email,user.name);
 }
 
 module.exports = { registerController, loginController };
