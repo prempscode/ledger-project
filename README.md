@@ -1,2 +1,2 @@
-# BankApp-Backend
-Building a Backend app for Banking system
+# backend-ledger-project
+Building a Backend ledger system in Banking system

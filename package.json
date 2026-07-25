@@ -1,5 +1,5 @@
 {
-  "name": "bankapp-backend",
+  "name": "backend-ledger-project",
   "version": "1.0.0",
   "description": "Building a Backend app for Banking system",
   "main": "index.js",
@@ -10,16 +10,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/prempscode/BankApp-Backend.git"
+    "url": "git+https://github.com/prempscode/backend-ledger-project.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "bugs": {
-    "url": "https://github.com/prempscode/BankApp-Backend/issues"
+    "url": "https://github.com/prempscode/backend-ledger-project/issues"
   },
-  "homepage": "https://github.com/prempscode/BankApp-Backend#readme",
+  "homepage": "https://github.com/prempscode/backend-ledger-project#readme",
   "dependencies": {
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
