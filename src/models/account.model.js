@@ -1,50 +1,49 @@
 const mongoose = require("mongoose");
-
-const accountSchema = new mongoose.Schema({
+const leger = require("../models/ledger.model");
+const accountSchema = new mongoose.Schema(
+  {
     user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "user",
-        required: [true, "Account must be associated with a user"],
-        // creating index so that when we search users it will be fast and optimized
-        // indexing on mongo database works on : B+Tree data structure
-        // MongoDB relies on a B+tree data structure via its default WiredTiger storage engine to handle indexing.
-        // https://youtu.be/aZjYr87r1b8?si=9V10TLLu5JxmVt-R
-        index: true,
-        // Creates an index on the `user` field.
-        // An index stores the field values in a sorted structure (B+ Tree),
-        // allowing MongoDB to locate documents much faster than scanning
-        // every document in the collection.
-        //
-        // Without index:
-        //    Time Complexity ≈ O(n) (Collection Scan)
-        //
-        // With index:
-        //    Time Complexity ≈ O(log n) (B+ Tree Search)
-        //
-        // Useful when we frequently search accounts by userId.
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "user",
+      required: [true, "Account must be associated with a user"],
+      // creating index so that when we search users it will be fast and optimized
+      // indexing on mongo database works on : B+Tree data structure
+      // MongoDB relies on a B+tree data structure via its default WiredTiger storage engine to handle indexing.
+      // https://youtu.be/aZjYr87r1b8?si=9V10TLLu5JxmVt-R
+      index: true,
+      // Creates an index on the `user` field.
+      // An index stores the field values in a sorted structure (B+ Tree),
+      // allowing MongoDB to locate documents much faster than scanning
+      // every document in the collection.
+      //
+      // Without index:
+      //    Time Complexity ≈ O(n) (Collection Scan)
+      //
+      // With index:
+      //    Time Complexity ≈ O(log n) (B+ Tree Search)
+      //
+      // Useful when we frequently search accounts by userId.
     },
     status: {
-        type: String,
-        enum: {
-            values: ["ACTIVE", "FROZEN", "CLOSED"],
-            message: "Status can be either ACTIVE,FROZEN or CLOSED",
-
-        },
-        default: "ACTIVE"
+      type: String,
+      enum: {
+        values: ["ACTIVE", "FROZEN", "CLOSED"],
+        message: "Status can be either ACTIVE,FROZEN or CLOSED",
+      },
+      default: "ACTIVE",
     },
     currency: {
-        type: String,
-        required: [true, "Currency is required for creating an account !"],
-        default: "INR"
+      type: String,
+      required: [true, "Currency is required for creating an account !"],
+      default: "INR",
     },
-}
-    ,
-    {
-        timestamps: true
-    }
+  },
+  {
+    timestamps: true,
+  },
 );
 
-accountSchema.index({ user: 1 }, { status: 1 })
+accountSchema.index({ user: 1 }, { status: 1 });
 // Creates a compound index on `user` and `status`.
 //
 // `1` means ascending order.
@@ -64,7 +63,41 @@ accountSchema.index({ user: 1 }, { status: 1 })
 // MongoDB stores the index using a B+ Tree, allowing
 // much faster lookups than scanning the entire collection.
 // https://chatgpt.com/share/6a6320a8-cd84-83ee-8ae1-321b4a785823
-const accountModel = mongoose.model("account", accountSchema)
 
+accountSchema.methods.getBalance = async function () {
+  const balanceData = await ledgerModel.aggregate([
+    {
+      $match: { account: this._id },
+    },
+    {
+      $group: {
+        _id: null,
+        totalDebit: {
+          $sum: {
+            $cond: [{ $eq: ["$type", "DEBIT"] }, "$amount", 0],
+          },
+        },
+        totalCredit: {
+          $sum: {
+            $cond: [{ $eq: ["$type", "CREDIT"] }, "$amount", 0],
+          },
+        },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        balance: { $subtract: ["$totalCredit", "$totalDebit"] },
+      },
+    },
+  ]);
 
+  if (balanceData.length === 0) {
+    return 0;
+  }
+
+  return balanceData[0].balance;
+};
+
+const accountModel = mongoose.model("account", accountSchema);
 module.exports = accountModel;
