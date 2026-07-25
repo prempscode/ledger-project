@@ -20,7 +20,8 @@ const mongoose = require("mongoose");
  */
 
 async function createTransaction(req, res) {
-  //   1. Validate request
+  //1. Validate request
+
   const { fromAccount, toAccount, amount, idempotencyKey } = req.body;
 
   if (!fromAccount || !toAccount || !amount || !idempotencyKey) {
@@ -28,11 +29,11 @@ async function createTransaction(req, res) {
       message: "FromAccount, toAccount, amount and idempotencyKey are required",
     });
   }
-  // is the fromUserAccount id is valid or not
+
   const fromUserAccount = await accountModel.findOne({
     _id: fromAccount,
   });
-  // is the toUserAccount id is valid or not
+
   const toUserAccount = await accountModel.findOne({
     _id: toAccount,
   });
@@ -44,33 +45,30 @@ async function createTransaction(req, res) {
   }
 
   //  2. Validate idempotency key
-
   const isTransactionAlreadyExists = await transactionModel.findOne({
     idempotencyKey: idempotencyKey,
   });
 
   if (isTransactionAlreadyExists) {
-    // now if the ideompotency key is alredy exists then we will check its status
-    // transaction already completed with this idempotency key
     if (isTransactionAlreadyExists.status === "COMPLETED") {
       return res.status(200).json({
         message: "Transaction already processed",
         transaction: isTransactionAlreadyExists,
       });
     }
-    // transaction is pending with this idempotency key
+
     if (isTransactionAlreadyExists.status === "PENDING") {
       return res.status(200).json({
         message: "Transaction is still processing",
       });
     }
-    // transaction is failed with this idempotency key
+
     if (isTransactionAlreadyExists.status === "FAILED") {
       return res.status(500).json({
         message: "Transaction processing failed, please retry",
       });
     }
-    // transaction is reversed with this idempotency key
+
     if (isTransactionAlreadyExists.status === "REVERSED") {
       return res.status(500).json({
         message: "Transaction was reversed, please retry",
@@ -79,9 +77,7 @@ async function createTransaction(req, res) {
   }
 
   // 3. Check account status
-
-  //   now we will check the status of accounts: here both the accounts sender and recievers account should be active
-
+  // now we will check the status of accounts: here both the accounts sender and recievers account should be active
   if (
     fromUserAccount.status !== "ACTIVE" ||
     toUserAccount.status !== "ACTIVE"
@@ -92,8 +88,7 @@ async function createTransaction(req, res) {
     });
   }
 
-  //   4. Derive sender balance from ledger
-
+  //  4. Derive sender balance from ledger
   const balance = await fromUserAccount.getBalance();
 
   if (balance < amount) {
@@ -104,7 +99,7 @@ async function createTransaction(req, res) {
 
   let transaction;
   try {
-    // 5. Create transaction (PENDING)
+    //5. Create transaction (PENDING)
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -122,7 +117,7 @@ async function createTransaction(req, res) {
         { session },
       )
     )[0];
-
+    // 6. Create DEBIT ledger entry
     const debitLedgerEntry = await ledgerModel.create(
       [
         {
@@ -138,7 +133,7 @@ async function createTransaction(req, res) {
     await (() => {
       return new Promise((resolve) => setTimeout(resolve, 15 * 1000));
     })();
-
+    // 7.Create CREDIT ledger entry
     const creditLedgerEntry = await ledgerModel.create(
       [
         {
@@ -150,13 +145,13 @@ async function createTransaction(req, res) {
       ],
       { session },
     );
-
+    // 8. Mark transaction COMPLETED
     await transactionModel.findOneAndUpdate(
       { _id: transaction._id },
       { status: "COMPLETED" },
       { session },
     );
-
+    // 9. Commit MongoDB sessionF
     await session.commitTransaction();
     session.endSession();
   } catch (error) {
@@ -165,9 +160,7 @@ async function createTransaction(req, res) {
         "Transaction is Pending due to some issue, please retry after sometime",
     });
   }
-  /**
-   * 10. Send email notification
-   */
+  //10. Send email notification
   await emailService.sendTransactionEmail(
     req.user.email,
     req.user.name,

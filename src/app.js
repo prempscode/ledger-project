@@ -1,8 +1,6 @@
 const express = require("express");
-const authRouter = require("./routes/auth.routes");
 const cookieParser = require("cookie-parser");
 const dns = require("dns");
-const accountRouter = require("./routes/account.routes");
 
 dns.setServers(["1.1.1.1", "8.8.8.8"]);
 
@@ -12,11 +10,22 @@ app.use(express.json());
 app.use(cookieParser());
 
 /**
- * Auth routes prefix
+ * - Routes required
  */
-app.use("/api/auth", authRouter);
+const authRouter = require("./routes/auth.routes");
+const accountRouter = require("./routes/account.routes");
+const transactionRoutes = require("./routes/transaction.routes");
+
 /**
- * Account routes prefix
+ * - Use Routes
  */
-app.use("/api/accounts", accountRouter)
+
+app.get("/", (req, res) => {
+  res.send("Ledger Service is up and running");
+});
+
+app.use("/api/auth", authRouter);
+app.use("/api/accounts", accountRouter);
+app.use("/api/transactions", transactionRoutes);
+
 module.exports = app;
