@@ -1,25 +1,27 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
+const cors = require("cors");
 const dns = require("dns");
 
 dns.setServers(["1.1.1.1", "8.8.8.8"]);
 
 const app = express();
 
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    credentials: true,
+  }),
+);
 app.use(express.json());
 app.use(cookieParser());
 
-/**
- * - Routes required
- */
+// Routes required
 const authRouter = require("./routes/auth.routes");
 const accountRouter = require("./routes/account.routes");
 const transactionRoutes = require("./routes/transaction.routes");
 
-/**
- * - Use Routes
- */
-
+// Use Routes
 app.get("/", (req, res) => {
   res.send("Ledger Service is up and running");
 });
