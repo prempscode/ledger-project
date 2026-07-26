@@ -37,6 +37,11 @@ const accountSchema = new mongoose.Schema(
       required: [true, "Currency is required for creating an account !"],
       default: "INR",
     },
+    balance: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
   },
   {
     timestamps: true,
@@ -63,42 +68,6 @@ accountSchema.index({ user: 1 }, { status: 1 });
 // MongoDB stores the index using a B+ Tree, allowing
 // much faster lookups than scanning the entire collection.
 // https://chatgpt.com/share/6a6320a8-cd84-83ee-8ae1-321b4a785823
-
-accountSchema.methods.getBalance = async function () {
-  const balanceData = await ledgerModel.aggregate([
-    {
-      $match: { account: this._id },
-    },
-    {
-      $group: {
-        _id: null,
-        totalDebit: {
-          $sum: {
-            $cond: [{ $eq: ["$type", "DEBIT"] }, "$amount", 0],
-          },
-        },
-        totalCredit: {
-          $sum: {
-            $cond: [{ $eq: ["$type", "CREDIT"] }, "$amount", 0],
-          },
-        },
-      },
-    },
-    {
-      $project: {
-        _id: 0,
-        balance: { $subtract: ["$totalCredit", "$totalDebit"] },
-      },
-    },
-  ]);
-
-  if (balanceData.length === 0) {
-    return 0;
-  }
-
-  return balanceData[0].balance;
-};
-
 
 
 const accountModel = mongoose.model("account", accountSchema);
