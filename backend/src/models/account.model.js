@@ -10,7 +10,6 @@ const accountSchema = new mongoose.Schema(
       // indexing on mongo database works on : B+Tree data structure
       // MongoDB relies on a B+tree data structure via its default WiredTiger storage engine to handle indexing.
       // https://youtu.be/aZjYr87r1b8?si=9V10TLLu5JxmVt-R
-      index: true,
       // Creates an index on the `user` field.
       // An index stores the field values in a sorted structure (B+ Tree),
       // allowing MongoDB to locate documents much faster than scanning
