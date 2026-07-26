@@ -86,8 +86,9 @@ export default function Dashboard() {
           <div className="card empty-state">
             <div className="empty-state-title">No accounts yet</div>
             <p style={{ marginBottom: 20 }}>
-              Create your first account to start sending and receiving
-              money.(You will get account creating bonus 5000 inr)
+              Create your first account to start sending and receiving money.
+              <br />
+              (You will get account creating bonus 5000 inr)
             </p>
             <button
               className="btn btn-primary btn-block-auto"
