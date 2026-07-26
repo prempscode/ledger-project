@@ -85,7 +85,10 @@ export default function Dashboard() {
         ) : accounts.length === 0 ? (
           <div className="card empty-state">
             <div className="empty-state-title">No accounts yet</div>
-            <p style={{ marginBottom: 20 }}>Create your first account to start sending and receiving money.</p>
+            <p style={{ marginBottom: 20 }}>
+              Create your first account to start sending and receiving
+              money.(You will get account creating bonus 5000 inr)
+            </p>
             <button
               className="btn btn-primary btn-block-auto"
               style={{ margin: "0 auto" }}
@@ -120,8 +123,16 @@ export default function Dashboard() {
               </div>
             ))}
 
-            <button className="new-account-card" onClick={handleCreateAccount} disabled={creating}>
-              {creating ? <span className="spinner spinner-dark" /> : "+ New account"}
+            <button
+              className="new-account-card"
+              onClick={handleCreateAccount}
+              disabled={creating}
+            >
+              {creating ? (
+                <span className="spinner spinner-dark" />
+              ) : (
+                "+ New account"
+              )}
             </button>
           </div>
         )}
