@@ -38,9 +38,7 @@ export function AuthProvider({ children }) {
   async function logout() {
     try {
       await api.logout(token);
-    } catch {
-      // ignore network errors on logout, clear local session regardless
-    }
+    } catch {}
     setUser(null);
     setToken(null);
     localStorage.removeItem("ledger_token");
