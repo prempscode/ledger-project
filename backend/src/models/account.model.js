@@ -68,6 +68,5 @@ accountSchema.index({ user: 1 }, { status: 1 });
 // much faster lookups than scanning the entire collection.
 // https://chatgpt.com/share/6a6320a8-cd84-83ee-8ae1-321b4a785823
 
-
 const accountModel = mongoose.model("account", accountSchema);
 module.exports = accountModel;
