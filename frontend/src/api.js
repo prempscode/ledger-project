@@ -13,9 +13,7 @@ async function request(path, { method = "GET", body, token } = {}) {
   let data = null;
   try {
     data = await res.json();
-  } catch {
-    // no JSON body
-  }
+  } catch {}
 
   if (!res.ok) {
     const message = data?.message || `Request failed (${res.status})`;
