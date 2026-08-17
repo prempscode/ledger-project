@@ -27,7 +27,10 @@ async function request(path, { method = "GET", body, token } = {}) {
 
 export const api = {
   register: (name, email, password) =>
-    request("/auth/register", { method: "POST", body: { name, email, password } }),
+    request("/auth/register", {
+      method: "POST",
+      body: { name, email, password },
+    }),
 
   login: (email, password) =>
     request("/auth/login", { method: "POST", body: { email, password } }),
@@ -38,9 +41,13 @@ export const api = {
 
   createAccount: (token) => request("/accounts", { method: "POST", token }),
 
-  getBalance: (accountId, token) => request(`/accounts/balance/${accountId}`, { token }),
+  getBalance: (accountId, token) =>
+    request(`/accounts/balance/${accountId}`, { token }),
 
-  createTransaction: (token, { fromAccount, toAccount, amount, idempotencyKey }) =>
+  createTransaction: (
+    token,
+    { fromAccount, toAccount, amount, idempotencyKey },
+  ) =>
     request("/transactions", {
       method: "POST",
       token,
