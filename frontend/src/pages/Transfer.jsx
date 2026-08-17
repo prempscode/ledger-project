@@ -113,7 +113,11 @@ export default function Transfer() {
               />
             </div>
 
-            <button className="btn btn-primary" type="submit" disabled={loading}>
+            <button
+              className="btn btn-primary"
+              type="submit"
+              disabled={loading}
+            >
               {loading ? <span className="spinner" /> : "Send"}
             </button>
           </form>
